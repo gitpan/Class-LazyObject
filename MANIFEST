@@ -36,3 +36,4 @@ t/testmodules/Simple/Lazy/Incorrect.pm
 t/testmodules/Simple/Lazy/Inherit.pm
 t/testmodules/TestCode/GenerateCombos.pm
 t/testmodules/TestCode/PlainObject.pm
+META.yml                                 Module meta-data (added by MakeMaker)

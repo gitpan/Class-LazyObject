@@ -6,7 +6,7 @@ use Carp qw();
 
 BEGIN {
 	use vars '$VERSION';
-	$VERSION     = '0.10';
+	$VERSION     = '0.10_1';
 }
 
 use vars '$AUTOLOAD';
@@ -23,6 +23,15 @@ sub AUTOLOAD
 	my $method = $1;
 	
 	my $class_method = (ref($self) || $self).'::Methods';#call all class methods on this.
+	
+	unless (UNIVERSAL::can($class_method, 'inherit')) {#If a class inherits from a class that inherits from Class::LazyObject, it may not have called inherit and therefore won't have ::Methods installed.
+		#One approach might be to call inherit for it, but we're just going to search for an ancestor with a ::Methods that can inherit.
+		my @parent_classes = (Class::ISA::super_path( ref($self)||$self ), 'UNIVERSAL');
+		foreach my $parent_class (@parent_classes){ #We probably want the equivalent of first from Scalar::MoreUtil but this is good for now
+			$class_method = $parent_class.'::Methods';
+			last if UNIVERSAL::can($class_method, 'inherit');
+		}
+	}
 	
 	if (($method eq 'new') && !ref($self))
 	{
@@ -158,7 +167,7 @@ sub inherit
 	
 	{
 		no strict 'refs'; #more symbol table munging
-		push(@{$method_package.'::ISA'}, __PACKAGE__); #Create a package to hold all the methods, that inherits from THIS class, or add this class to its inheritance if it does exist.  #Should this be $class instead of __PACKAGE__
+		push(@{$method_package.'::ISA'}, $class); #Create a package to hold all the methods, that inherits from THIS class, or add this class to its inheritance if it does exist.  #Should this be $class instead of __PACKAGE__
 		#^Push is used instead of unshift so that someone can override their ::Methods package with its own inheritence hierarchy, and methods will be called here only AFTER Perl finds they don't exist in the overridden ISA.
 	}
 	
@@ -619,10 +628,10 @@ I will most likely revise this caveat to make more sense.
 (The difference between bugs and L<caveats|"CAVEATS"> is that I plan to fix the
 bugs.)
 
-=head2 Inheriting from lazy objects
+=head2 Inheriting from lazy objects (FIXED!!!)
 
-Currently, you cannot easily inherit from a class that inherits from
-C<Class::LazyObject>. This will be fixed very soon.
+Previously, you could not easily inherit from a class that inherits from
+C<Class::LazyObject>. This should now be fixed but needs more testing.
 
 =head2 Objects with C<overload>ed operators
 
@@ -651,6 +660,9 @@ may be added in a future release. See L<perltie> to learn more about C<tie>s.
 
 Daniel C. Axelrod, daxelrod@cpan.org
 
+If you wish to contact me by email, please include this module's name somewhere
+in the message, so I can find it among all the junk mail sent to that address.
+
 =head1 SEE ALSO
 
 =head2 L<Object::Realize::Later>
@@ -666,12 +678,17 @@ independently, but subsequently discovered his posting.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2003-2004, Daniel C. Axelrod. All Rights Reserved.
+Copyright (c) 2003-2008, Daniel C. Axelrod. All Rights Reserved.
 
-This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under either the
+GNU General Public License Version 2 or the Perl Foundation's Perl Artistic
+License Versions 1.0 or 2.0.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
+
+If you are reluctant to use, modify, or contribute to this module because of its license,
+please let me know. I would like this code to be useful to as many people as possible,
+so I'm open to discussing relicensing suggestions.
 
 =cut

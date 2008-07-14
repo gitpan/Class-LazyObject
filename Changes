@@ -1,5 +1,13 @@
 Revision history for Perl module Class::LazyObject
 
+.10_1 3-13 July 2008
+	- Fix for inheriting from a class that inherits from Class::LazyObject. (bug 14457)
+	  This is not yet a production release because I want to give how we are doing this more thought.
+	- Slight change in the licensing terms. Rather than saying 'under the same terms as Perl itself'
+	  (which for Perl 5 meant the GPLv2 or later, or the Artistic Licensev1) I now explicitly license
+	  under GPLv2 or Artistic v1/v2. As I say in the docs, if this causes you any problems, please
+	  let me know.
+
 .10: 21 Feb 2003
 	- First released version.
 
